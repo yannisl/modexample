@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage{fontspec, lipsum,booktabs,filecontents}
+\newfontfamily{\arial}{Arial}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.11}
+\usepackage{pgfplotstable,luacode,amsmath}
+\makeatletter
+\newenvironment {bulletgraph} {\luacode@begin\luacode@table@soft} {}
+\makeatother
+
+\pgfplotscreateplotcyclelist{bullet}{
+{fill=color1, draw=none},
+{fill=color2, draw=none},
+{fill=color3, draw=none},
+}
+
+\pgfplotsset{mark options/.style={color=black!80}}
+\pgfplotsset{barwidth/.style= {bar width=1.2ex} }
+\pgfplotsset{chartheight/.style ={height=#1}}
+
+\providecommand{\bulletgauge}[4][]{
+    \begin{tikzpicture}[scale=0.8, font=\arial]
+    \begin{axis}[
+       width=8cm,
+       chartheight = 60pt,
+       xtick pos=left, 
+       xtick = {0,50,...,400, 450},
+       ytick=\empty,
+       xmin=50, xmax=450,
+       tick align=outside,
+       axis on top,
+       every axis title/.style={
+            at={(rel axis cs:0,0.5)},
+            anchor=east,
+            align=right,
+            xshift=-0.5em
+        },
+        #1
+    ]
+    
+  \pgfplotsinvokeforeach{#4}{
+        \pgfplotsset{cycle list name=bullet}
+        \addplot +[xbar, bar width=7ex ] coordinates {(##1,0)};
+   }
+   \addplot [fill= barcolour, xbar, barwidth ] coordinates {(#2,0)};    
+   \addplot [mark=|, mark options={very thick}, mark size=2ex, ] coordinates {(#3,0)}; 
+   \end{axis}
+   \end{tikzpicture}
+}
+
+\begin{document}
+
+\section{Bulletgraph}
+
+
+\begin{bulletgraph}
+--require("logging.logging") -- in scripts folder
+--require("logging") -- local will print test
+local  bgraph = require("graphs.bulletgraph")
+ local data = {
+     title = 'Valuation (Jan)',
+     ranges = {230,300,500},
+     bar = 200,
+     marker = 220}
+     local options = {
+        barcolour = 'red!90'
+   } 
+bgraph:render(data,options)        
+\end{bulletgraph}
+
+\begin{filecontents*}{readme.md}
+*Bullet Graphs*
+
+This is a short demonstration of using LuaTeX to generate bullet graphs.
+\end{filecontents*}
+\end{document}
+
